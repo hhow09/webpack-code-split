@@ -1,12 +1,14 @@
-import React from "react";
-import HelloWorld from "./components/HelloWorld";
-import RenderForm from "./components/RenderForm";
+import React, { Suspense } from "react";
+const HelloWorld = React.lazy(() => import("./components/HelloWorld"));
+const RenderForm = React.lazy(() => import("./components/RenderForm"));
 
 const App = () => {
   return (
     <div>
-      <HelloWorld />
-      <RenderForm />
+      <Suspense fallback={<div>Loading...</div>}>
+        <HelloWorld />
+        <RenderForm />
+      </Suspense>
     </div>
   );
 };

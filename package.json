@@ -4,8 +4,9 @@
   "description": "React app built with Webpack and Babel",
   "main": "index.js",
   "scripts": {
-    "webpack": "webpack",
+    "build": "rimraf build && webpack",
     "start": "webpack serve",
+    "serve": "node_modules/serve/bin/serve.js build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Anubhav Sarkar",
@@ -19,8 +20,11 @@
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.2.0",
     "path": "^0.12.7",
+    "prettier": "2.3.2",
+    "serve": "^12.0.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.24.2",
+    "webpack-bundle-analyzer": "^4.4.2",
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.2"
   },
