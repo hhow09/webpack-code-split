@@ -1,13 +1,26 @@
 const path = require("path");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const createHtml = require("./config/create-html");
+const getEntry = require("./config/get-entry");
 
-module.exports = {
-  entry: path.join(__dirname, "src", "index.js"),
-  output: { path: path.join(__dirname, "build"), filename: "[name].bundle.js" },
-  mode: process.env.NODE_ENV || "development",
-  resolve: { modules: [path.resolve(__dirname, "src"), "node_modules"] },
+const entry = getEntry("./src/pages");
+const htmlArr = createHtml("./src/pages");
+
+module.exports = (env, argv) => ({
+  entry,
+  output: { path: path.join(__dirname, "build"), filename: "[name].js" },
+  resolve: {
+    modules: [path.resolve(__dirname, "src"), "node_modules"],
+    alias: {
+      src: path.resolve(__dirname, "src/"),
+      component: path.resolve(__dirname, "src/component/"),
+      store: path.resolve(__dirname, "src/store/"),
+    },
+  },
   devServer: { contentBase: path.join(__dirname, "src") }, // https://webpack.js.org/guides/hot-module-replacement/
   module: {
     rules: [
@@ -18,7 +31,7 @@ module.exports = {
       },
       {
         test: /\.(css|scss)$/,
-        use: ["style-loader", "css-loader"],
+        use: ["style-loader", "css-loader", "sass-loader"],
       },
       {
         test: /\.(jpg|jpeg|png|gif|mp3|svg)$/,
@@ -27,18 +40,19 @@ module.exports = {
     ],
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src", "index.html"),
+    ...htmlArr,
+    new BundleAnalyzerPlugin({
+      analyzerMode: argv.mode === "production" ? "static" : "disabled",
     }),
-    new BundleAnalyzerPlugin(),
+    new CleanWebpackPlugin(),
   ],
-  //https://webpack.js.org/plugins/terser-webpack-plugin/
   optimization: {
     minimize: true,
     minimizer: [
       new TerserPlugin({
         extractComments: false,
       }),
+      //https://webpack.js.org/plugins/terser-webpack-plugin/
     ],
     splitChunks: {
       cacheGroups: {
@@ -51,4 +65,4 @@ module.exports = {
       },
     },
   },
-};
+});
