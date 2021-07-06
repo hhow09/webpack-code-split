@@ -1,7 +1,6 @@
-const getPath = require("./get-path");
+const getPath = require("./get-page-path");
 module.exports = function getEnty(path) {
-  return (getPath(path) || []).reduce((entry, el) => {
-    console.log(el);
+  return getPath(path).reduce((entry, el) => {
     entry[`${el}/${el}`] = `${path}/${el}/index.js`;
     return entry;
   }, {});

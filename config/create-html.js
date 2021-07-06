@@ -1,9 +1,9 @@
 const fs = require("fs");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const getPath = require("./get-path");
+const getPagePath = require("./get-page-path");
 const siteInfo = require("./siteInfo.json");
 const createHtml = page_path =>
-  getPath(page_path).map(item => {
+  getPagePath(page_path).map(item => {
     let infoJson = {},
       infoData = {};
     try {

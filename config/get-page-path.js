@@ -1,11 +1,11 @@
 const fs = require("fs");
-module.exports = function getPath(path) {
+module.exports = function getPagePath(path) {
   const existpath = fs.existsSync(path);
   if (existpath) {
-    const readdirSync = fs.readdirSync(path);
-    return readdirSync.filter(item => {
+    return fs.readdirSync(path).filter(item => {
       const currentPath = path + "/" + item;
       const isDirector = fs.statSync(currentPath).isDirectory();
+      //only return the first-layer-directory name
       if (isDirector) return item;
     });
   } else return [];
