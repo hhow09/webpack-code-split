@@ -4,8 +4,7 @@
   "description": "React app built with Webpack and Babel",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --mode production",
-    "start": "webpack serve --mode development --devtool inline-source-map --hot",
+    "start": "node scripts/start.js",
     "serve": "node_modules/serve/bin/serve.js build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

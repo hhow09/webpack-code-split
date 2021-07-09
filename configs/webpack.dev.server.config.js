@@ -5,42 +5,22 @@ const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const paths = require("./paths");
 const { WatchIgnorePlugin, DefinePlugin, ProvidePlugin } = require("webpack");
-const StartServerPlugin = require("start-server-nestjs-webpack-plugin");//polyfill webpack 5
+const StartServerPlugin = require("start-server-nestjs-webpack-plugin"); //polyfill webpack 5
 //const StartServerPlugin = require('start-server-webpack-plugin');
-const nodeExternals = require('webpack-node-externals');
-const config = require("./")
-
-
-const splitChunksConfigs = {
-  dev: {
-    cacheGroups: {
-      default: false,
-      vendors: false,
-      // In webpack 5 vendors was renamed to defaultVendors
-      defaultVendors: false,
-    },
-  },
-  prod: {
-    cacheGroups: {
-      default: false,
-      vendors: false,
-      // In webpack 5 vendors was renamed to defaultVendors
-      defaultVendors: false,
-    },
-  },
-};
+const nodeExternals = require("webpack-node-externals");
+const config = require("./");
 
 module.exports = {
   entry: { server: [paths.appServerIndexJs] },
   output: {
     path: paths.appBuild,
-      publicPath: config.clientPublicPath,
+    publicPath: config.clientPublicPath,
     filename: "[name].js",
     chunkFilename: "[name].chunk.js",
     libraryTarget: "commonjs2",
   },
-target: 'node', // in order to ignore built-in modules like path, fs, etc.
-    externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
+  target: "node", // in order to ignore built-in modules like path, fs, etc.
+  externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
   resolveLoader: {
     modules: ["node_modules"],
   },
@@ -107,7 +87,12 @@ target: 'node', // in order to ignore built-in modules like path, fs, etc.
       }),
       // https://webpack.js.org/plugins/terser-webpack-plugin/
     ],
-    splitChunks: splitChunksConfigs.dev,
+    splitChunks: config.splitChunksConfigs.dev,
   },
   watch: true,
+  watchOptions: {
+    ignored: "**/node_modules",
+    poll: 1000,
+    aggregateTimeout: 3000,
+  },
 };

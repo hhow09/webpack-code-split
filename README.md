@@ -1,4 +1,4 @@
-# react-with-webpack
+# react-with-webpack SSR
 
 - [x] multi-entrypoint/app configuration
 
@@ -23,20 +23,6 @@
 2. build: `npm run build`
 3. serve build: `npm run serve`
 
-## Output Directory
-
-```
-build
-├── index
-│   └── index.js
-├── index.html
-├── todo
-│   ├── index.html
-│   └── todo.js
-└── vendor.js
-```
-
 ## Reference
+- [razzle](https://github.com/jaredpalmer/razzle)
 
-- [Setup a React App using Webpack and Babel](https://anubhav7x.hashnode.dev/setup-a-react-app-using-webpack-and-babel)
-- [leinov/react-multi-page-app](https://github.com/leinov/react-multi-page-app)

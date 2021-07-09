@@ -19,8 +19,9 @@ process.on("unhandledRejection", err => {
 
 function main() {
   return new Promise((resolve, reject) => {
-    let watching;
     logger.log("compiling...");
+    const clientCompiler = webpack(webpackClientDevConfig);
+
     const serverCompiler = webpack(webpackServerDevConfig);
     serverCompiler.run((runErrors, runStats) => {
       console.log(
@@ -41,18 +42,19 @@ function main() {
         })
       );
     });
-    // const serverCompiler = compile(webpackServerDevConfig, verbose);
-    watching = serverCompiler.watch(
+    const watching = serverCompiler.watch(
       {
-        quiet: !verbose,
-        stats: "none",
+        // Example [watchOptions](/configuration/watch/#watchoptions)
+        aggregateTimeout: 300,
       },
-      /* eslint-disable no-unused-vars */
-      stats => {}
+      (err, stats) => {
+        // [Stats Object](#stats-object)
+        // Print watch/build result here...
+        console.log(stats);
+      }
     );
 
-    const clientCompiler = webpack(webpackClientDevConfig);
-
+    logger.log("starting client dev server");
     const clientDevServer = new devServer(clientCompiler, webpackClientDevConfig.devServer);
     clientDevServer.listen(config.devClientPort, err => {
       if (err) {

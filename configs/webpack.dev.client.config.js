@@ -17,26 +17,6 @@ const webpackDevClientEntry = require.resolve("razzle-dev-utils/webpackHotDevCli
 const errorOverlayMiddleware = require("react-dev-utils/errorOverlayMiddleware");
 
 const config = require("./");
-
-const splitChunksConfigs = {
-  dev: {
-    cacheGroups: {
-      default: false,
-      vendors: false,
-      // In webpack 5 vendors was renamed to defaultVendors
-      defaultVendors: false,
-    },
-  },
-  prod: {
-    cacheGroups: {
-      default: false,
-      vendors: false,
-      // In webpack 5 vendors was renamed to defaultVendors
-      defaultVendors: false,
-    },
-  },
-};
-
 module.exports = {
   entry: { client: [paths.appClientIndexJs, webpackDevClientEntry] },
   target: "web",
@@ -81,11 +61,11 @@ module.exports = {
     hot: true,
     noInfo: true,
     overlay: false,
-    port: config.devServerPort,
+    port: config.devClientPort,
     quiet: true, // By default files from `contentBase` will not trigger a page reload.
     // Reportedly, this avoids CPU overload on some systems.
     // https://github.com/facebookincubator/create-react-app/issues/293
-    watchOptions: { ignored: /node_modules/ },
+    watchOptions: { poll: true, ignored: /node_modules/ },
     before(app) {
       // This lets us open files from the runtime error overlay.
       app.use(errorOverlayMiddleware());
@@ -110,10 +90,10 @@ module.exports = {
     ],
   },
   plugins: [
+    new HotModuleReplacementPlugin(),
     new CleanWebpackPlugin(),
     new WatchIgnorePlugin({ paths: [paths.appAssetsManifest] }),
     // new DefinePlugin(),
-    new HotModuleReplacementPlugin({ multiStep: true }),
   ],
   optimization: {
     minimize: false,
@@ -123,7 +103,7 @@ module.exports = {
       }),
       // https://webpack.js.org/plugins/terser-webpack-plugin/
     ],
-    splitChunks: splitChunksConfigs.dev,
+    splitChunks: config.splitChunksConfigs.dev,
   },
   watch: true,
 };
