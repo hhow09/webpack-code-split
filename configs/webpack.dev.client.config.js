@@ -4,12 +4,19 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const paths = require("./paths");
-const { WatchIgnorePlugin, DefinePlugin, ProvidePlugin } = require("webpack");
-const StartServerPlugin = require("start-server-nestjs-webpack-plugin");//polyfill webpack 5
+const {
+  WatchIgnorePlugin,
+  DefinePlugin,
+  ProvidePlugin,
+  HotModuleReplacementPlugin,
+} = require("webpack");
+const StartServerPlugin = require("start-server-nestjs-webpack-plugin"); //polyfill webpack 5
 //const StartServerPlugin = require('start-server-webpack-plugin');
-const nodeExternals = require('webpack-node-externals');
-const config = require("./")
+const nodeExternals = require("webpack-node-externals");
+const webpackDevClientEntry = require.resolve("razzle-dev-utils/webpackHotDevClient");
+const errorOverlayMiddleware = require("react-dev-utils/errorOverlayMiddleware");
 
+const config = require("./");
 
 const splitChunksConfigs = {
   dev: {
@@ -31,16 +38,16 @@ const splitChunksConfigs = {
 };
 
 module.exports = {
-  entry: { server: [paths.appServerIndexJs] },
+  entry: { client: [paths.appClientIndexJs, webpackDevClientEntry] },
+  target: "web",
+  mode: "development",
   output: {
-    path: paths.appBuild,
-      publicPath: config.clientPublicPath,
-    filename: "[name].js",
-    chunkFilename: "[name].chunk.js",
-    libraryTarget: "commonjs2",
+    path: paths.appBuildPublic,
+    publicPath: config.clientPublicPath,
+    pathinfo: true,
+    filename: "static/js/[name].js",
+    chunkFilename: "static/js/[name].chunk.js",
   },
-target: 'node', // in order to ignore built-in modules like path, fs, etc.
-    externals: [nodeExternals()], // in order to ignore all modules in node_modules folder
   resolveLoader: {
     modules: ["node_modules"],
   },
@@ -59,7 +66,32 @@ target: 'node', // in order to ignore built-in modules like path, fs, etc.
       net: false,
     },
   },
-  devServer: { contentBase: path.join(__dirname, "src") }, // https://webpack.js.org/guides/hot-module-replacement/
+  devServer: {
+    disableHostCheck: true,
+    clientLogLevel: "none", // Enable gzip compression of generated files.
+    compress: true, // watchContentBase: true,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    historyApiFallback: {
+      // Paths with dots should still use the history fallback.
+      // See https://github.com/facebookincubator/create-react-app/issues/387.
+      disableDotRule: true,
+    },
+    host: config.devHost,
+    publicPath: config.clientPublicPath,
+    hot: true,
+    noInfo: true,
+    overlay: false,
+    port: config.devServerPort,
+    quiet: true, // By default files from `contentBase` will not trigger a page reload.
+    // Reportedly, this avoids CPU overload on some systems.
+    // https://github.com/facebookincubator/create-react-app/issues/293
+    watchOptions: { ignored: /node_modules/ },
+    before(app) {
+      // This lets us open files from the runtime error overlay.
+      app.use(errorOverlayMiddleware());
+    },
+  },
+
   module: {
     rules: [
       {
@@ -81,23 +113,7 @@ target: 'node', // in order to ignore built-in modules like path, fs, etc.
     new CleanWebpackPlugin(),
     new WatchIgnorePlugin({ paths: [paths.appAssetsManifest] }),
     // new DefinePlugin(),
-    new ProvidePlugin({
-      process: "process/browser",
-      Buffer: ["buffer", "Buffer"],
-    }),
-    new StartServerPlugin({
-      name: "server.js",
-      entryName: "server",
-      nodeArgs: ["--inspect"], // allow debugging
-      args: ["scriptArgument1", "scriptArgument2"], // pass args to script
-      signal: false | true | "SIGUSR2", // signal to send for HMR (defaults to `false`, uses 'SIGUSR2' if `true`)
-      keyboard: true | false, // Allow typing 'rs' to restart the server. default: only if NODE_ENV is 'development'
-      restartable: true,
-      inject: true,
-      killOnExit: false,
-      killOnError: false,
-      killTimeout: 1000,
-    }),
+    new HotModuleReplacementPlugin({ multiStep: true }),
   ],
   optimization: {
     minimize: false,

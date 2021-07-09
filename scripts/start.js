@@ -3,10 +3,12 @@
 
 const webpack = require("webpack");
 const webpackServerDevConfig = require("../configs/webpack.dev.server.config");
+const webpackClientDevConfig = require("../configs/webpack.dev.client.config");
 const devServer = require("webpack-dev-server");
 const clearConsole = require("react-dev-utils/clearConsole");
 const logger = require("razzle-dev-utils/logger");
 const printErrors = require("razzle-dev-utils/printErrors");
+const config = require("../configs");
 const verbose = false;
 
 process.on("unhandledRejection", err => {
@@ -49,16 +51,25 @@ function main() {
       stats => {}
     );
 
-    // [("SIGINT", "SIGTERM")].forEach(sig => {
-    //   process.on(sig, () => {
-    //     // if (clientDevServer) {
-    //     // clientDevServer.close();
-    //     // }
-    //     // if (watching) {
-    //     watching.close();
-    //     // }
-    //   });
-    // });
+    const clientCompiler = webpack(webpackClientDevConfig);
+
+    const clientDevServer = new devServer(clientCompiler, webpackClientDevConfig.devServer);
+    clientDevServer.listen(config.devClientPort, err => {
+      if (err) {
+        logger.error(err);
+      }
+    });
+
+    [("SIGINT", "SIGTERM")].forEach(sig => {
+      process.on(sig, () => {
+        if (clientDevServer) {
+          clientDevServer.close();
+        }
+        if (watching) {
+          watching.close();
+        }
+      });
+    });
 
     resolve();
   }).catch(console.error);
