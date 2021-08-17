@@ -3,8 +3,6 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const {IgnorePlugin} = require("webpack")
 const createHtml = require("./config/create-html");
 const getEntry = require("./config/get-entry");
 const defaultApps = ["index"]
@@ -21,7 +19,7 @@ const getEntryFromApps = (apps)=>{
 }
 
 module.exports = (env, argv) => {
-const {mode, env:{}} = argv;
+const {env:{}} = argv;
 const { apps="", buildVendor, analyzeBundle } = env
 const appsArr = [...apps.split(","), ...defaultApps];
 const entry = buildVendor? {vendor: vendorEntry} : apps ? getEntryFromApps(appsArr): defaultEntry;
@@ -63,10 +61,10 @@ return ({
     new BundleAnalyzerPlugin({
       analyzerMode: analyzeBundle? "static" : "disabled",
     }),
-    new CleanWebpackPlugin(),
-    new IgnorePlugin({
-      resourceRegExp: apps ? /react|react-dom/: /./,
-    })
+    // new CleanWebpackPlugin(),
+    // new IgnorePlugin({
+    //   resourceRegExp: apps ? /react|react-dom/: /./,
+    // })
   ],
   optimization: {
     minimize: true,
@@ -76,7 +74,6 @@ return ({
       }),
       //https://webpack.js.org/plugins/terser-webpack-plugin/
     ],
-
     // splitChunks: {
     //   cacheGroups: {
     //     // Split vendor code to its own chunk(s)

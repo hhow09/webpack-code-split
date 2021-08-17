@@ -21,7 +21,7 @@ const createHtml = (apps) =>
       },
       chunks: [`${item}/${item}`],
       template: "./src/template.html",
-      filename: item == "index" ? "index.html" : `${item}/index.html`,
+      filename: `${item}/index.html`,
       minify: {
         collapseWhitespace: true,
         preserveLineBreaks: true,

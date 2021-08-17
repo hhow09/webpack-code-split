@@ -4,10 +4,9 @@
   "description": "React app built with Webpack and Babel",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --mode production",
-    "build-todo": "webpack --mode=production --env apps=todo",
-    "build-vendor": "webpack --mode=production --env buildVendor=true",
-    "start": "webpack serve --mode development --devtool inline-source-map --hot",
+    "build": "npm run build-vendor & npm run build-apps",
+    "build-apps": "webpack --mode=production --config webpack.config.app.js",
+    "build-vendor": "webpack --mode=production --config webpack.config.vendors.js",
     "serve": "node_modules/serve/bin/serve.js build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -32,7 +31,8 @@
     "webpack": "^5.50.0",
     "webpack-bundle-analyzer": "^4.4.2",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.2",
+    "webpack-merge": "^5.8.0"
   },
   "dependencies": {
     "react": "^17.0.1",
