@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
+    "build-todo": "webpack --mode=production --env apps=todo",
     "start": "webpack serve --mode development --devtool inline-source-map --hot",
     "serve": "node_modules/serve/bin/serve.js build",
     "test": "echo \"Error: no test specified\" && exit 1"

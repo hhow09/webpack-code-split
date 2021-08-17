@@ -6,11 +6,28 @@ const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPl
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const createHtml = require("./config/create-html");
 const getEntry = require("./config/get-entry");
+const defaultApps = ["index"]
+const getPagePath = require("./config/get-page-path");
 
-const entry = getEntry("./src/pages");
-const htmlArr = createHtml("./src/pages");
+const defaultEntry = getEntry("./src/pages");
+const defaultHtmlArr = createHtml(getPagePath("./src/pages"))
+const getEntryFromApps = (apps)=>{
+  return apps.reduce((res,app)=>{
+    res[`${app}/${app}`] = `./src/pages/${app}/index.js`
+    return res
+  },{})
+}
 
-module.exports = (env, argv) => ({
+module.exports = (env, argv) => {
+const {mode, env:{}} = argv;
+const { apps="" } = env
+const appsArr = [...apps.split(","), ...defaultApps];
+const entry =  apps ? getEntryFromApps(appsArr): defaultEntry;
+const htmlArr = apps ? createHtml(appsArr): defaultHtmlArr;
+
+apps && console.log(`Webpack Build Apps: ${apps}`)
+
+return ({
   entry,
   output: { path: path.join(__dirname, "build"), filename: "[name].js" },
   resolve: {
@@ -42,7 +59,7 @@ module.exports = (env, argv) => ({
   plugins: [
     ...htmlArr,
     new BundleAnalyzerPlugin({
-      analyzerMode: argv.mode === "production" ? "static" : "disabled",
+      analyzerMode: mode === "production" ? "static" : "disabled",
     }),
     new CleanWebpackPlugin(),
   ],
@@ -65,4 +82,4 @@ module.exports = (env, argv) => ({
       },
     },
   },
-});
+})}
