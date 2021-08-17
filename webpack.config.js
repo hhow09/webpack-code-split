@@ -4,10 +4,12 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const {IgnorePlugin} = require("webpack")
 const createHtml = require("./config/create-html");
 const getEntry = require("./config/get-entry");
 const defaultApps = ["index"]
 const getPagePath = require("./config/get-page-path");
+const vendorEntry = require("./vendor")
 
 const defaultEntry = getEntry("./src/pages");
 const defaultHtmlArr = createHtml(getPagePath("./src/pages"))
@@ -20,10 +22,10 @@ const getEntryFromApps = (apps)=>{
 
 module.exports = (env, argv) => {
 const {mode, env:{}} = argv;
-const { apps="" } = env
+const { apps="", buildVendor, analyzeBundle } = env
 const appsArr = [...apps.split(","), ...defaultApps];
-const entry =  apps ? getEntryFromApps(appsArr): defaultEntry;
-const htmlArr = apps ? createHtml(appsArr): defaultHtmlArr;
+const entry = buildVendor? {vendor: vendorEntry} : apps ? getEntryFromApps(appsArr): defaultEntry;
+const htmlArr = buildVendor? []: apps ? createHtml(appsArr): defaultHtmlArr;
 
 apps && console.log(`Webpack Build Apps: ${apps}`)
 
@@ -59,9 +61,12 @@ return ({
   plugins: [
     ...htmlArr,
     new BundleAnalyzerPlugin({
-      analyzerMode: mode === "production" ? "static" : "disabled",
+      analyzerMode: analyzeBundle? "static" : "disabled",
     }),
     new CleanWebpackPlugin(),
+    new IgnorePlugin({
+      resourceRegExp: apps ? /react|react-dom/: /./,
+    })
   ],
   optimization: {
     minimize: true,
@@ -71,15 +76,16 @@ return ({
       }),
       //https://webpack.js.org/plugins/terser-webpack-plugin/
     ],
-    splitChunks: {
-      cacheGroups: {
-        // Split vendor code to its own chunk(s)
-        vendors: {
-          name: "vendor",
-          test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-          chunks: "all",
-        },
-      },
-    },
+
+    // splitChunks: {
+    //   cacheGroups: {
+    //     // Split vendor code to its own chunk(s)
+    //     vendors: {
+    //       name: "vendor",
+    //       test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+    //       chunks: "all",
+    //     },
+    //   },
+    // },
   },
 })}
